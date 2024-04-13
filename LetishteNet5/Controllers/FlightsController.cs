@@ -54,9 +54,8 @@ namespace LetishteNet5.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("From,To,DepartureTime,ArrivalTime,PlaneType,PlaneNumber,PilotName,FreePassengersSeats,FreeBusinessSeats")] Flight flight)
+        public async Task<IActionResult> Create([Bind("Id,From,To,DepartureTime,ArrivalTime,PlaneType,PlaneNumber,PilotName,FreePassengersSeats,FreeBusinessSeats")] Flight flight)
         {
-            flight.Id= Guid.NewGuid().ToString();
             if (ModelState.IsValid)
             {
                 _context.Add(flight);
