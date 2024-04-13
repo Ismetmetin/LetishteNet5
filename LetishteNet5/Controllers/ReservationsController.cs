@@ -60,8 +60,10 @@ namespace LetishteNet5.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,FirstName,SecondName,LastName,SSN,PhoneNumber,Email,Nationality,TicketType,TicketsCount,IsConfirmed,FlightId")] Reservation reservation)
+        public async Task<IActionResult> Create([Bind("FirstName,SecondName,LastName,SSN,PhoneNumber,Email,Nationality,TicketType,TicketsCount,FlightId")] Reservation reservation)
         {
+            reservation.Id = Guid.NewGuid().ToString();
+            reservation.IsConfirmed = false;
             if (ModelState.IsValid)
             {
                 _context.Add(reservation);
