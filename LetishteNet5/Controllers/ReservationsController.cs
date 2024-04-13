@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using LetishteNet5.Data;
 using LetishteNet5.Data.Entities;
+using Microsoft.AspNetCore.Authorization;
 
 namespace LetishteNet5.Controllers
 {
@@ -20,6 +21,7 @@ namespace LetishteNet5.Controllers
         }
 
         // GET: Reservations
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Index()
         {
             var flightManagerDbContext = _context.Reservations.Include(r => r.Flight);
@@ -27,6 +29,7 @@ namespace LetishteNet5.Controllers
         }
 
         // GET: Reservations/Details/5
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Details(string id)
         {
             if (id == null)
@@ -70,6 +73,7 @@ namespace LetishteNet5.Controllers
         }
 
         // GET: Reservations/Edit/5
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(string id)
         {
             if (id == null)
@@ -89,6 +93,7 @@ namespace LetishteNet5.Controllers
         // POST: Reservations/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(string id, [Bind("Id,FirstName,SecondName,LastName,SSN,PhoneNumber,Email,Nationality,TicketType,TicketsCount,IsConfirmed,FlightId")] Reservation reservation)
@@ -123,6 +128,7 @@ namespace LetishteNet5.Controllers
         }
 
         // GET: Reservations/Delete/5
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(string id)
         {
             if (id == null)
@@ -140,8 +146,9 @@ namespace LetishteNet5.Controllers
 
             return View(reservation);
         }
-
+        //flight view reserve button
         // POST: Reservations/Delete/5
+        [Authorize(Roles = "Admin")]
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(string id)

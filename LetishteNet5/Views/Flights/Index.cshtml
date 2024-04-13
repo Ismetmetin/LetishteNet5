@@ -1,5 +1,8 @@
-﻿@model IEnumerable<LetishteNet5.Data.Entities.Flight>
-
+﻿@using LetishteNet5.Data.Entities
+@using Microsoft.AspNetCore.Identity
+@model IEnumerable<LetishteNet5.Data.Entities.Flight>
+@inject SignInManager<User> SignInManager
+@inject UserManager<User> UserManager
 @{
     ViewData["Title"] = "Index";
 }
@@ -73,9 +76,13 @@
                 @Html.DisplayFor(modelItem => item.FreeBusinessSeats)
             </td>
             <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                    <a asp-action="Create" asp-controller="Reservations" asp-route-flightId="@item.Id">Reserve</a>
+                    @if (User.IsInRole("Admin"))
+                    {
+                        <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> 
+                        <a asp-action = "Delete" asp-route-id = "@item.Id" > Delete </a> 
+                    }
+                    <a asp-action="Details" asp-route-id="@item.Id">Details</a>
             </td>
         </tr>
 }
