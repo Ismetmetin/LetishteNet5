@@ -9,6 +9,8 @@ using System.Linq;
 using System.Security.Policy;
 using Microsoft.AspNetCore.Identity;
 using System;
+using Microsoft.AspNetCore.Identity.UI.Services;
+using System.Text.Encodings.Web;
 
 namespace LetishteNet5.Controllers
 {
@@ -48,29 +50,41 @@ namespace LetishteNet5.Controllers
 
             return View(user);
         }
+        /*public IActionResult Create()
         [Authorize(Roles = "Admin")]
-        public IActionResult Create()
         {
             //?
             return View();
         }
         [Authorize(Roles = "Admin")]
         [HttpPost]
-        [ValidateAntiForgeryToken]
+        [ValidateAntiForgeryToken]*/
         //do kolkoto razbrah Bind raboti kato konstruktor na koito opisvash NavPropertitata koito da vzeme
-        public async Task<IActionResult> Create([Bind("UserName,PasswordHash,Email,FirstName,LastName, EGN, Address,PhoneNumber")] User user)
+       
+        
+        /*public async Task<IActionResult> Create([Bind("UserName,PasswordHash,Email,FirstName,LastName, EGN, Address,PhoneNumber")] User user)
         {
             user.Id= Guid.NewGuid().ToString();
             user.PasswordHash = _userManager.PasswordHasher.HashPassword(user, user.PasswordHash);
-             
+            var result = await _userManager.CreateAsync(user, user.PasswordHash);
+            if (result.Succeeded)
+            {
+               *//*user.*//*
+            }
+
             if (ModelState.IsValid)
             {
+                
+                IdentityUserRole<string> role1 = new IdentityUserRole<string>();
+                role1.RoleId = _context.Roles.First(x => x.Name == "User").Id;
+                role1.UserId = user.Id;
                 _context.Add(user);
+                _context.Add(role1);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
             return View();
-        }
+        }*/
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(string? id)
         {
@@ -79,7 +93,7 @@ namespace LetishteNet5.Controllers
                 return NotFound();
             }
 
-            var user = await _context.Users.FindAsync(id);
+            var user =  _context.Users.First(x=>x.Id == id);
             if (user == null)
             {
                 return NotFound();
@@ -140,8 +154,6 @@ namespace LetishteNet5.Controllers
             return View(user);
 
         }
-
-
         [Authorize(Roles = "Admin")]
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]

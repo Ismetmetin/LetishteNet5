@@ -69,6 +69,23 @@ namespace LetishteNet5
                             NormalizedName = "ADMIN"
                         });
 
+                        User admin = new User();
+                        admin.UserName = "admin@abv.bg";
+                        admin.FirstName = "admin";
+                        admin.Email = "admin@abv.bg";
+                        var hasher = new PasswordHasher<User>();
+
+                        admin.PasswordHash = hasher.HashPassword(admin,"12345678");
+                        var adminRole = context.Roles.First(x=>x.Name == "Admin");
+                        var userRole = new IdentityUserRole<string>();
+                        userRole.UserId = admin.Id;
+                        userRole.RoleId = adminRole.Id;
+                        context.Users.Add(admin);
+                        context.UserRoles.Add(userRole);
+                        context.SaveChanges();
+
+
+
                         context.Roles.Add(new IdentityRole
                         {
                             Name = "User",
