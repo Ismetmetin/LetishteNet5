@@ -1,122 +1,96 @@
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IServiceProvider serviceProvider)
+public IActionResult Create(int flightId)
         {
-            if (env.IsDevelopment())
+            /*
+            _context.Flights.Find(flightId);
+            ViewData["FlightId"] = flightId;
+            ViewData["FlightId"] = new SelectList(_context.Flights, "Id", "LocationTo");
+            */
+            //ViewData["FlightId"] = new SelectList(_context.Flights, "Id", "Id", flightId);
+            //   Вярно!!!     //ViewData["FlightId"] = new SelectList(_context.Flights, "Id", $"LocationFrom - LocationTo", flightId);
+            //ViewData["FlightId"] = new SelectListItem(flightId.ToString(), flightId.ToString(), true, true);
+            
+            
+            List<Flight> flights = _context.Flights.ToList();
+
+            List<SelectListItem> flightItems = flights.Select(f => new SelectListItem
             {
-                app.UseDeveloperExceptionPage();
-                app.UseMigrationsEndPoint();
-            }
-            else
-            {
-                app.UseExceptionHandler("/Home/Error");
-                
-                app.UseHsts();
-            }
-            app.UseHttpsRedirection();
-            app.UseStaticFiles();
+                Text = $"{f.LocationFrom} - {f.LocationTo}",
+                Value = f.Id.ToString(),
+                Selected=true
+            }).ToList();
 
-            app.UseRouting();
-
-
-            app.UseAuthentication();
-            app.UseAuthorization();
-
-            CreateRole(serviceProvider).Wait();
-            app.UseEndpoints(endpoints =>
-            {
-                endpoints.MapControllerRoute(
-                    name: "default",
-                    pattern: "{controller=Home}/{action=Index}/{id?}");
-                endpoints.MapRazorPages();
-            });
+            ViewData["FlightId"] = flightItems;
+            return View();
         }
 
-        public void ConfigureServices(IServiceCollection services)
+        // POST: Reservations/Create
+        // To protect from overposting attacks, enable the specific properties you want to bind to.
+        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create([Bind("Id,FirstName,MiddleName,LastName,EGN,PhoneNumber,Nationality,TicketType,FlightId")] Reservation reservation)
         {
-            services.AddDbContext<FlightManagerDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
-            services.AddDatabaseDeveloperPageExceptionFilter();
-
-            services.AddIdentity<User, IdentityRole>(options =>
+            if (ModelState.IsValid)
             {
-                options.SignIn.RequireConfirmedAccount = false;
-
-                options.Password.RequireDigit = false;
-                options.Password.RequiredLength = 3;
-                options.Password.RequireLowercase = false;
-                options.Password.RequireNonAlphanumeric = false;
-                options.Password.RequireUppercase = false;
-                options.Password.RequiredUniqueChars = 0;
-
-            })
-                .AddEntityFrameworkStores<FlightManagerDbContext>();
-            services.AddControllersWithViews();
-            services.AddRazorPages();
+                _context.Add(reservation);
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Index));
+            }
+            //ViewData["FlightId"] = new SelectList(_context.Flights, "Id", "LocationFrom", reservation.FlightId);
+            ViewData["FlightId"] = new SelectList(_context.Flights, "Id", "LocationFrom", reservation.FlightId);
+            return View(reservation);
         }
 
-        private async Task CreateRole(IServiceProvider serviceProvider)
+        // GET: Reservations/Edit/5
+        public async Task<IActionResult> Edit(int? id)
         {
-            var RoleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-            var UserManager = serviceProvider.GetRequiredService<UserManager<User>>();
-            string[] roles = { "Admin", "Employee" };
-            IdentityResult result;
-
-            //Checks if roles Admin and Employee exist. If not - they get created
-            foreach (var role in roles)
+            if (id == null || _context.Reservations == null)
             {
-                var check = await RoleManager.RoleExistsAsync(role);
-                if (!check)
-                {
-                    result = await RoleManager.CreateAsync(new IdentityRole(role));
-                }
-            }
-            // Add admin user
-            var admin = new User
-            {
-                UserName = "Admin@admin.bg",
-                FirstName = "Admin",
-                LastName = "Admin",
-                EGN = "999999999",
-                Address = "AdminAdress",
-                Email = "Admin@admin.bg",
-                PhoneNumber = "1234567890",
-                Id = Guid.NewGuid().ToString()
-            };
-
-            string passwordUser = "Pass_23";
-
-            //Checks if admin user exists. If it doesn't, it creates a admin user with role ,,Admin''
-            var _userAdmin = await UserManager.FindByNameAsync(admin.UserName);
-            if (_userAdmin == null)
-            {
-                IdentityResult checkUser = await UserManager.CreateAsync(admin, passwordUser);
-                if (checkUser.Succeeded)
-                {
-                    await UserManager.AddToRoleAsync(admin, "Admin");
-                }
+                return NotFound();
             }
 
-            var emp = new User
+            var reservation = await _context.Reservations.FindAsync(id);
+            if (reservation == null)
             {
-                UserName = "Emp@emp.bg",
-                FirstName = "Employee",
-                LastName = "Employee",
-                EGN = "111111111",
-                Address = "EmployeeAdress",
-                Email = "Emp@emp.bg",
-                PhoneNumber = "0987654321",
-                Id = Guid.NewGuid().ToString()
-            };
-
-            string passwordEmp = "Pass_23";
-
-            var _userEmployee = await UserManager.FindByNameAsync(emp.UserName);
-            if (_userEmployee == null)
-            {
-                IdentityResult checkUser = await UserManager.CreateAsync(emp, passwordEmp);
-                if (checkUser.Succeeded)
-                {
-                    await UserManager.AddToRoleAsync(emp, "Employee");
-                }
+                return NotFound();
             }
+            ViewData["FlightId"] = new SelectList(_context.Flights, "Id", "LocationFrom", reservation.FlightId);
+            return View(reservation);
         }
-    }
-}
+
+        // POST: Reservations/Edit/5
+        // To protect from overposting attacks, enable the specific properties you want to bind to.
+        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int id, [Bind("Id,FirstName,MiddleName,LastName,EGN,PhoneNumber,Nationality,TicketType,FlightId")] Reservation reservation)
+        {
+            if (id != reservation.Id)
+            {
+                return NotFound();
+            }
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    _context.Update(reservation);
+                    await _context.SaveChangesAsync();
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!ReservationExists(reservation.Id))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+                return RedirectToAction(nameof(Index));
+            }
+            ViewData["FlightId"] = new SelectList(_context.Flights, "Id", "LocationFrom", reservation.FlightId);
+            return View(reservation);
+        }
+        
