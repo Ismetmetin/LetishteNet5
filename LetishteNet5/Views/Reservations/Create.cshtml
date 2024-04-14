@@ -65,14 +65,15 @@
                 <select asp-for="FlightId" class="form-control" asp-items="ViewBag.FlightId"></select>
             </div>
             <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
+                <input type="submit" value="Create" class="btn btn-primary" formaction="/Flights"/>
+
             </div>
         </form>
     </div>
 </div>
 
 <div>
-    <a asp-action="Index">Back to List</a>
+    <a asp-controller="Flights" asp-action="Index">Back to List</a>
 </div>
 
 @section Scripts {

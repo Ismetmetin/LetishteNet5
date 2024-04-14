@@ -6,16 +6,21 @@ using Microsoft.EntityFrameworkCore;
 using System.Data;
 using System.Threading.Tasks;
 using System.Linq;
+using System.Security.Policy;
+using Microsoft.AspNetCore.Identity;
+using System;
 
 namespace LetishteNet5.Controllers
 {
     public class UsersController : Controller
     {
         private readonly FlightManagerDbContext _context;
+        private readonly UserManager<User> _userManager;
 
-        public UsersController(FlightManagerDbContext context)
+        public UsersController(FlightManagerDbContext context, UserManager<User> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
 
         [Authorize(Roles = "Admin")]
@@ -53,8 +58,11 @@ namespace LetishteNet5.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         //do kolkoto razbrah Bind raboti kato konstruktor na koito opisvash NavPropertitata koito da vzeme
-        public async Task<IActionResult> Create([Bind("Id,UserName,PasswordHash,Email,FirstName,LastName, EGN, Address,PhoneNumber")] User user)
+        public async Task<IActionResult> Create([Bind("UserName,PasswordHash,Email,FirstName,LastName, EGN, Address,PhoneNumber")] User user)
         {
+            user.Id= Guid.NewGuid().ToString();
+            user.PasswordHash = _userManager.PasswordHasher.HashPassword(user, user.PasswordHash);
+             
             if (ModelState.IsValid)
             {
                 _context.Add(user);
@@ -81,7 +89,7 @@ namespace LetishteNet5.Controllers
         [Authorize(Roles = "Admin")]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(string id, [Bind("Id,UserName,PasswordHash,Email,FirstName,LastName, EGN, Address,PhoneNumber,IsAdmin")] User user)
+        public async Task<IActionResult> Edit(string id, [Bind("Id,UserName,PasswordHash,Email,FirstName,LastName, EGN, Address,PhoneNumber")] User user)
         {
             if (id != user.Id)
             {
@@ -91,6 +99,7 @@ namespace LetishteNet5.Controllers
             {
                 try
                 {
+                  
                     _context.Update(user);
                     await _context.SaveChangesAsync();
                 }
@@ -114,6 +123,7 @@ namespace LetishteNet5.Controllers
         {
             return (_context.Users?.Any(e => e.Id == userId)).GetValueOrDefault();
         }
+
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(string? id)
         {

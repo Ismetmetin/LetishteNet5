@@ -70,6 +70,7 @@ namespace LetishteNet5.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
+
             ViewData["FlightId"] = new SelectList(_context.Flights, "Id", "Id", reservation.FlightId);
             return View(reservation);
         }
