@@ -1,7 +1,13 @@
-public IActionResult Create(int flightId)
-        {         
-            
-            
+
+
+asd
+
+
+
+
+        
+  public IActionResult Create(int flightId)      {
+        
             List<Flight> flights = _context.Flights.ToList();
 
             List<SelectListItem> flightItems = flights.Select(f => new SelectListItem
