@@ -1,13 +1,5 @@
 public IActionResult Create(int flightId)
-        {
-            /*
-            _context.Flights.Find(flightId);
-            ViewData["FlightId"] = flightId;
-            ViewData["FlightId"] = new SelectList(_context.Flights, "Id", "LocationTo");
-            */
-            //ViewData["FlightId"] = new SelectList(_context.Flights, "Id", "Id", flightId);
-            //   Вярно!!!     //ViewData["FlightId"] = new SelectList(_context.Flights, "Id", $"LocationFrom - LocationTo", flightId);
-            //ViewData["FlightId"] = new SelectListItem(flightId.ToString(), flightId.ToString(), true, true);
+        {         
             
             
             List<Flight> flights = _context.Flights.ToList();
@@ -93,4 +85,3 @@ public IActionResult Create(int flightId)
             ViewData["FlightId"] = new SelectList(_context.Flights, "Id", "LocationFrom", reservation.FlightId);
             return View(reservation);
         }
-        
