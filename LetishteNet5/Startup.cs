@@ -103,14 +103,14 @@ namespace LetishteNet5
                 UserName = "Admin@admin.bg",
                 FirstName = "Admin",
                 LastName = "Admin",
-                EGN = "0000000000",
-                Address = "AdminNoAddress123",
+                EGN = "999999999",
+                Address = "AdminAdress",
                 Email = "Admin@admin.bg",
                 PhoneNumber = "1234567890",
                 Id = Guid.NewGuid().ToString()
             };
 
-            string passwordUser = "_Password123";
+            string passwordUser = "Pass_23";
 
             //Checks if admin user exists. If it doesn't, it creates a admin user with role ,,Admin''
             var _user = await UserManager.FindByNameAsync(admin.UserName);

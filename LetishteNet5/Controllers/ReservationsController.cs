@@ -49,9 +49,28 @@ namespace LetishteNet5.Controllers
         }
 
         // GET: Reservations/Create
-        public IActionResult Create()
+        public IActionResult Create(int flightId)
         {
-            ViewData["FlightId"] = new SelectList(_context.Flights, "Id", "Id");
+            /*
+            _context.Flights.Find(flightId);
+            ViewData["FlightId"] = flightId;
+            ViewData["FlightId"] = new SelectList(_context.Flights, "Id", "LocationTo");
+            */
+            //ViewData["FlightId"] = new SelectList(_context.Flights, "Id", "Id", flightId);
+            //   Вярно!!!     //ViewData["FlightId"] = new SelectList(_context.Flights, "Id", $"LocationFrom - LocationTo", flightId);
+            //ViewData["FlightId"] = new SelectListItem(flightId.ToString(), flightId.ToString(), true, true);
+
+
+            List<Flight> flights = _context.Flights.ToList();
+
+            List<SelectListItem> flightItems = flights.Select(f => new SelectListItem
+            {
+                Text = $"{f.From} - {f.To}",
+                Value = f.Id.ToString(),
+                Selected = true
+            }).ToList();
+
+            ViewData["FlightId"] = flightItems;
             return View();
         }
 
@@ -60,18 +79,16 @@ namespace LetishteNet5.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("FirstName,SecondName,LastName,SSN,PhoneNumber,Email,Nationality,TicketType,TicketsCount,FlightId")] Reservation reservation)
+        public async Task<IActionResult> Create([Bind("Id,FirstName,MiddleName,LastName,EGN,PhoneNumber,Nationality,TicketType,FlightId")] Reservation reservation)
         {
-            reservation.Id = Guid.NewGuid().ToString();
-            reservation.IsConfirmed = false;
             if (ModelState.IsValid)
             {
                 _context.Add(reservation);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-
-            ViewData["FlightId"] = new SelectList(_context.Flights, "Id", "Id", reservation.FlightId);
+            //ViewData["FlightId"] = new SelectList(_context.Flights, "Id", "LocationFrom", reservation.FlightId);
+            ViewData["FlightId"] = new SelectList(_context.Flights, "Id", "LocationFrom", reservation.FlightId);
             return View(reservation);
         }
 
