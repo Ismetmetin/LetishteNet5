@@ -49,9 +49,18 @@ namespace LetishteNet5.Controllers
         }
 
         // GET: Reservations/Create
-        public IActionResult Create()
+        public IActionResult Create(int flightId)
         {
-            ViewData["FlightId"] = new SelectList(_context.Flights, "Id", "Id");
+            List<Flight> flights = _context.Flights.ToList();
+
+            List<SelectListItem> flightItems = flights.Select(f => new SelectListItem
+            {
+                Text = $"{f.From} - {f.To}",
+                Value = f.Id.ToString(),
+                Selected = true
+            }).ToList();
+
+            ViewData["FlightId"] = flightItems;
             return View();
         }
 
@@ -60,26 +69,24 @@ namespace LetishteNet5.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("FirstName,SecondName,LastName,SSN,PhoneNumber,Email,Nationality,TicketType,TicketsCount,FlightId")] Reservation reservation)
+        public async Task<IActionResult> Create([Bind("Id,FirstName,MiddleName,LastName,EGN,PhoneNumber,Nationality,TicketType,FlightId")] Reservation reservation)
         {
-            reservation.Id = Guid.NewGuid().ToString();
-            reservation.IsConfirmed = false;
             if (ModelState.IsValid)
             {
                 _context.Add(reservation);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-
-            ViewData["FlightId"] = new SelectList(_context.Flights, "Id", "Id", reservation.FlightId);
+            //ViewData["FlightId"] = new SelectList(_context.Flights, "Id", "LocationFrom", reservation.FlightId);
+            ViewData["FlightId"] = new SelectList(_context.Flights, "Id", "LocationFrom", reservation.FlightId);
             return View(reservation);
         }
 
         // GET: Reservations/Edit/5
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> Edit(string id)
+        public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null)
+            if (id == null || _context.Reservations == null)
             {
                 return NotFound();
             }
@@ -89,7 +96,7 @@ namespace LetishteNet5.Controllers
             {
                 return NotFound();
             }
-            ViewData["FlightId"] = new SelectList(_context.Flights, "Id", "Id", reservation.FlightId);
+            ViewData["FlightId"] = new SelectList(_context.Flights, "Id", "LocationFrom", reservation.FlightId);
             return View(reservation);
         }
 
@@ -99,7 +106,7 @@ namespace LetishteNet5.Controllers
         [Authorize(Roles = "Admin")]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(string id, [Bind("Id,FirstName,SecondName,LastName,SSN,PhoneNumber,Email,Nationality,TicketType,TicketsCount,IsConfirmed,FlightId")] Reservation reservation)
+        public async Task<IActionResult> Edit(string id, [Bind("Id,FirstName,MiddleName,LastName,EGN,PhoneNumber,Nationality,TicketType,FlightId")] Reservation reservation)
         {
             if (id != reservation.Id)
             {
@@ -126,7 +133,7 @@ namespace LetishteNet5.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["FlightId"] = new SelectList(_context.Flights, "Id", "Id", reservation.FlightId);
+            ViewData["FlightId"] = new SelectList(_context.Flights, "Id", "LocationFrom", reservation.FlightId);
             return View(reservation);
         }
 
